@@ -12,6 +12,8 @@ def index(req):
     return HttpResponse("Rango says hello!")
 
 # This will be another view
+def about(req):
+    return HttpResponse("Rango Says: Here is the about page.")
 
 # And this
 
