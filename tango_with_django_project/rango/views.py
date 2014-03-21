@@ -28,7 +28,10 @@ def index(req):
 
 # This will be another view
 def about(req):
-    return HttpResponse("Rango Says: Here is the about page.<br/><a href='/rango/'>Index</a>")
+    #return HttpResponse("Rango Says: Here is the about page.<br/><a href='/rango/'>Index</a>")
+    context = RequestContext(req)
+    return render_to_response('rango/about.html', context)
+
 
 # And this
 
