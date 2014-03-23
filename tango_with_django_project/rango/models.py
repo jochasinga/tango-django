@@ -13,7 +13,6 @@ class Category(models.Model):
         return self.name
 
     class Meta:
-        ordering = ["name", "visits", "likes"]
         verbose_name_plural = "Categories"
 
 class Page(models.Model):
@@ -25,5 +24,4 @@ class Page(models.Model):
     def __unicode__(self):
         return self.title
 
-    class Meta:
-        ordering = ["category", "title", "url", "views"]
+
