@@ -11,6 +11,8 @@ from django.shortcuts import render_to_response
 
 # Import the Category and Page models
 from rango.models import Category, Page
+# Import the Category forms
+from rango.forms import CategoryForm
 
 # This is a view called "index"
 def index(req):
@@ -24,7 +26,9 @@ def index(req):
     # Retrieve the top 5 only - or all if less than 5.
     # Place the list in our context_dict dictionary which will be passed
     category_list = Category.objects.order_by('-likes')[:5]    
-    context_dict = {'categories': category_list}
+    page_list = Page.objects.order_by('-views')[:5]
+    context_dict = {'categories': category_list, 'pages': page_list}
+
 
     for category in category_list:
         category.url = category.name.replace(' ', '_')
@@ -79,4 +83,30 @@ def category(req, category_name_url):
     return render_to_response('rango/category.html', context_dict, context)
 
 # And this...
+def add_category(req):
+    # Ge the context from the request.
+    context = RequestContext(req)
 
+    # A HTTP POST?
+    if req.method == 'POST':
+        form = CategoryForm(req.POST)
+
+        # Have we been provided with a valid from?
+        if form.is_valid():
+            # Save the new category to the database
+            form.save(commit=True)
+
+            # Now call the index() view.
+            # The user will be shown the homepage
+            return index(req)
+        else:
+            # The supplied form contained errors - just print them to the terminal
+            print form.errors
+    else:
+        # If the request wasn't a POST, display the form to enter details
+        form = CategoryForm()
+
+    # Bad form (or form details), no form supplied...
+    # Render the form with error messages (if any).
+    return render_to_response('rango/add_category.html', {'form':form}, context)
+            
