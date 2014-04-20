@@ -9,44 +9,54 @@ from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 
-# Import the Category and Page models
+# Import the necessary models
 from rango.models import Category, Page
-# Import the Category forms
 from rango.forms import CategoryForm
 
-# This is a view called "index"
+# index view
 def index(req):
-    #return HttpResponse("Rango says hello!<br/><a href='/rango/about/'>About</a>")
     
+    """View for index page"""
+
     # Request the context of the HTTP request
     context = RequestContext(req)
 
-    # Query the database for a list of ALL categories currently stored.
-    # Order the categories by no. likes in descending order.
-    # Retrieve the top 5 only - or all if less than 5.
-    # Place the list in our context_dict dictionary which will be passed
+    # Query database for a list of ALL categories ordered by no. of likes(descending)
     category_list = Category.objects.order_by('-likes')[:5]    
+    
+    # Query databse for a list of ALL pages ordered by number of views (descending)
     page_list = Page.objects.order_by('-views')[:5]
+
+    # Place the lists in context_dict which will be passed as an argument
     context_dict = {'categories': category_list, 'pages': page_list}
 
 
     for category in category_list:
+        # Replace any space with an underscore for a 'pretty' url
         category.url = category.name.replace(' ', '_')
 
     # Return a rendered response to send to the client
-    # We make use of the shortcut function to make our lives easier.
+    # by mean of a render_to_response() shortcut function to make our lives easier.
     # Note that the first parameter is the template we wish to use.
     return render_to_response('rango/index.html', context_dict, context)
 
-# This will be another view
+# about view
 def about(req):
-    #return HttpResponse("Rango Says: Here is the about page.<br/><a href='/rango/'>Index</a>")
+    
+    """View serving the about page"""
+    
+    # Query the HTTPRequest context
     context = RequestContext(req)
+     
+    # Simply return the template, since no model data are used here
     return render_to_response('rango/about.html', context)
 
 
-# And this
+# category view
 def category(req, category_name_url):
+    
+    """View serving the category page"""
+
     # Request our context from the request passed to us.
     context = RequestContext(req)
 
@@ -70,38 +80,48 @@ def category(req, category_name_url):
         pages = Page.objects.filter(category=category)
 
         # Adds our results list to the template context under name pages
+        # context_dict = { 'category_name': category_name, 'pages': pages }
         context_dict['pages'] = pages
+
         # We also add the category object from the database to the context dictionary
         # We'll use this in the template to verify that the category exists
+        # context_dict = { 'category_name': category_name, 'pages':pages, 'category': category }
         context_dict['category'] = category
+
     except Category.DoesNotExist:
         # We get here if we didn't find the specified category.
         # Don't do anything - the template displays the "no category" message for us.
         pass
 
-    # Go render the response and return it to the client
+    # Go render the response and return it to the client using the over-convenient
+    # render_to_response() shortcut function
     return render_to_response('rango/category.html', context_dict, context)
 
-# And this...
+# add_category view
 def add_category(req):
-    # Ge the context from the request.
+
+    """View used to new categories"""
+ 
+    # Get the context from the request.
     context = RequestContext(req)
 
-    # A HTTP POST?
+    # A HTTP POST? If so, provide a form for posting a new category
     if req.method == 'POST':
         form = CategoryForm(req.POST)
 
-        # Have we been provided with a valid from?
+        # Have we been provided with a valid form input from the user?
         if form.is_valid():
             # Save the new category to the database
             form.save(commit=True)
 
             # Now call the index() view.
-            # The user will be shown the homepage
+            # The user will be served with the index.html template
             return index(req)
+
         else:
             # The supplied form contained errors - just print them to the terminal
             print form.errors
+
     else:
         # If the request wasn't a POST, display the form to enter details
         form = CategoryForm()
