@@ -18,16 +18,20 @@ def encode_to_url(category_list):
     """Replace ' ' in category's or page's name with '_'"""
 
     for category in category_list:
-        category.url = i.name.replace(' ', '_')
-            
+        # Make a URL String out of category String
+        category.url = category.name.replace(' ', '_')
+    
+    # return a list    
     return category_list
 
 def decode_from_url(category_name_url):
     """Replace '_' in category's or page's url with ' '"""
     
     for category_name in category_name_url:
+       # Make a category string out of URL string
        category_name = category_name_url.replace('_', ' ')
     
+    # return a string
     return category_name
 
 # index view
@@ -48,9 +52,11 @@ def index(req):
     context_dict = {'categories': category_list, 'pages': page_list}
 
 
-    for category in category_list:
+    # for category in category_list:
         # Replace any space with an underscore for a 'pretty' url
-        category.url = category.name.replace(' ', '_')
+        # category.url = category.name.replace(' ', '_')
+    
+    category_list = encode_to_url(category_list)    
 
     # Return a rendered response to send to the client
     # by mean of a render_to_response() shortcut function to make our lives easier.
@@ -84,7 +90,8 @@ def category(req, category_name_url):
     # Change underscores in the category name to spaces
     # URLs don't handle spaces well, so we encode them as underscores.
     # We can then simply replace the underscores with spaces again to get the name.
-    category_name = category_name_url.replace('_', ' ')
+    # category_name = category_name_url.replace('_', ' ')
+    category_name = decode_from_url(category_name_url)
 
     # Create a context dictionary which we can pass to the template rendering engine
     # We start by containing the name of the category passed by the user
