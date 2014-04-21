@@ -1,7 +1,7 @@
 import os
 
 def populate():
-    python_cat = add_cat('Python', 128, 64)
+    python_cat = add_cat('Python', 56, 66)
 
     add_page(cat=python_cat,
              title="Official Python Tutorial",
@@ -21,7 +21,7 @@ def populate():
              views=200
     )
 
-    django_cat = add_cat("Django")
+    django_cat = add_cat("Django", 32, 13)
 
     add_page(cat=django_cat,
         title="Official Django Tutorial",
@@ -41,7 +41,7 @@ def populate():
         views=3
     )
 
-    frame_cat = add_cat("Other Frameworks", 32, 16)
+    frame_cat = add_cat("Other Frameworks", 102, 345)
 
     add_page(cat=frame_cat,
         title="Bottle",

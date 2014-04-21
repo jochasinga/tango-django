@@ -4,7 +4,7 @@
 # object takes a string parameter representing the content of the page
 # we wish to send to the client requesting the view.
 
-# Create your views here.
+# Import necessary modules
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response
@@ -12,6 +12,23 @@ from django.shortcuts import render_to_response
 # Import the necessary models
 from rango.models import Category, Page
 from rango.forms import CategoryForm
+
+# Do function overloading here tonight
+def encode_to_url(category_list):
+    """Replace ' ' in category's or page's name with '_'"""
+
+    for category in category_list:
+        category.url = i.name.replace(' ', '_')
+            
+    return category_list
+
+def decode_from_url(category_name_url):
+    """Replace '_' in category's or page's url with ' '"""
+    
+    for category_name in category_name_url:
+       category_name = category_name_url.replace('_', ' ')
+    
+    return category_name
 
 # index view
 def index(req):
@@ -55,7 +72,11 @@ def about(req):
 # category view
 def category(req, category_name_url):
     
-    """View serving the category page"""
+    """
+    This view take an additional parameter, category_name_url
+    which will store the decoded category name. We will need
+    some help functions to encode and decode the category_name_url
+    """
 
     # Request our context from the request passed to us.
     context = RequestContext(req)
