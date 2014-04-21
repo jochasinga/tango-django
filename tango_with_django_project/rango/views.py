@@ -13,9 +13,27 @@ from django.shortcuts import render_to_response
 from rango.models import Category, Page
 from rango.forms import CategoryForm
 
-# Do function overloading here tonight
+# Overloaded function to either encode or decode url strings
+def encode_or_decode(iterable):
+    """Adhoc overloaded function that either encode a list of strings with ' ' to '_' or
+       decode a URL string with '_' to ' '
+    """
+    if type(iterable) == list:
+        for category in iterable:
+               category.url = category.name.replace(' ', '_')
+        
+    elif type(iterable) == str:
+        for category_name in iterable:
+               category_name = iterable.replace('_', ' ')
+
+    else: 
+        pass
+    
+    return iterable
+
+# Two functions that do the same as above overloaded version
 def encode_to_url(category_list):
-    """Replace ' ' in category's or page's name with '_'"""
+    "Replace ' ' in category's or page's name with '_'"
 
     for category in category_list:
         # Make a URL String out of category String
@@ -56,7 +74,10 @@ def index(req):
         # Replace any space with an underscore for a 'pretty' url
         # category.url = category.name.replace(' ', '_')
     
-    category_list = encode_to_url(category_list)    
+
+    # category_list = encode_to_url(category_list)    
+
+    category_list = encode_or_decode(category_list)
 
     # Return a rendered response to send to the client
     # by mean of a render_to_response() shortcut function to make our lives easier.
@@ -91,7 +112,11 @@ def category(req, category_name_url):
     # URLs don't handle spaces well, so we encode them as underscores.
     # We can then simply replace the underscores with spaces again to get the name.
     # category_name = category_name_url.replace('_', ' ')
-    category_name = decode_from_url(category_name_url)
+    
+
+    # category_name = decode_from_url(category_name_url)
+
+    category_name = encode_or_decode(category_name_url)
 
     # Create a context dictionary which we can pass to the template rendering engine
     # We start by containing the name of the category passed by the user
