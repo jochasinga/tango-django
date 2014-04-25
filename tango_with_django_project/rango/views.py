@@ -95,6 +95,15 @@ def about(req):
     # Simply return the template, since no model data are used here
     return render_to_response('rango/about.html', context)
 
+# myass view
+def myass(req):
+    "Bonus view \|^_^|/"
+    
+    # Quary the HTTP Request context (GET or POST)
+    context = RequestContext(req)
+
+    # Simply return the myass template
+    return render_to_response('rango/myass.html', context)
 
 # category view
 def category(req, category_name_url):
@@ -131,7 +140,7 @@ def category(req, category_name_url):
         # Retrieve all of the associated pages.
         # Note that filter returns >= 1 model instance
         pages = Page.objects.filter(category=category)
-
+        
         # Adds our results list to the template context under name pages
         # context_dict = { 'category_name': category_name, 'pages': pages }
         context_dict['pages'] = pages
@@ -144,11 +153,12 @@ def category(req, category_name_url):
     except Category.DoesNotExist:
         # We get here if we didn't find the specified category.
         # Don't do anything - the template displays the "no category" message for us.
-        pass
-
-    # Go render the response and return it to the client using the over-convenient
-    # render_to_response() shortcut function
-    return render_to_response('rango/category.html', context_dict, context)
+        context_dict['category_not_exist'] = True
+        
+    finally:
+        # Go render the response and return it to the client using the over-convenient
+        # render_to_response() shortcut function
+        return render_to_response('rango/add_category.html', context_dict, context)
 
 # add_category view
 def add_category(req):

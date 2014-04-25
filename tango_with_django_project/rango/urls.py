@@ -11,7 +11,7 @@ urlpatterns = patterns('',
     url(r'^index', views.index, name='first page'),
     
     # http://localhost:PORT/rango/myass => index.html
-    url(r'^myass', views.index, name='first page'),
+    url(r'^myass', views.myass, name='bonus page'),
 
     # Map path '/about/' to about view, which will dispatch about template
     url(r'^about/', views.about, name='about'),
