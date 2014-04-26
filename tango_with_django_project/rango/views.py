@@ -11,7 +11,7 @@ from django.shortcuts import render_to_response
 
 # Import the necessary models
 from rango.models import Category, Page
-from rango.forms import CategoryForm
+from rango.forms import CategoryForm, PageForm
 
 # Do function overloading here tonight
 def encode_to_url(category_list):
