@@ -95,7 +95,8 @@ def category(req, category_name_url):
 
     # Create a context dictionary which we can pass to the template rendering engine
     # We start by containing the name of the category passed by the user
-    context_dict = {'category_name': category_name}
+    context_dict = { 'category_name': category_name,
+                     'category_name_url': category_name_url }
 
     try:
         # Can we find a category with the given name?
@@ -158,3 +159,38 @@ def add_category(req):
     # Render the form with error messages (if any).
     return render_to_response('rango/add_category.html', {'form':form}, context)
             
+def add_page(req, category_name_url):
+    context = RequestContext(req)
+
+    category_name = decode_from_url(category_name_url)
+    if req.method == 'POST':
+        form = PageForm(req.POST)
+
+        if form.is_valid():
+            # This time we cannot commit straight away.
+            # Not all fields are automatically populated!
+            page = form.save(commit=False)
+
+            try:
+                cat = Category.objects.get(name = category_name)
+                page.category = cat
+            except Category.DoesNotExist:
+                return render_to_response('rango/add_category.html', {}, context)
+
+            # Also, create a default value for the number of views.
+            page_views = 0
+
+            # With this, we can then save our new model instance
+            page.save()
+
+            # Now that the page is saved, display the category instead.
+            return category(req, category_name_url)
+        else:
+            print form.errors
+    else:
+        form = PageForm()
+
+    return render_to_response( 'rango/add_page.html', {'category_name_url': category_name_url,
+                                                       'category_name': category_name,
+                                                       'form': form}, context)
+

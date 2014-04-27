@@ -21,6 +21,9 @@ urlpatterns = patterns('',
 
     # map path '/category/any_category_name_here/' to category view 
     url(r'^category/(?P<category_name_url>\w+)/$', views.category, name='category'),
+
+    url(r'^category/(?P<category_name_url>\w+)/add_page/$', views.add_page, name='add page'),
+
 )
 
 
