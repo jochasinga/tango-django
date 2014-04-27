@@ -35,4 +35,4 @@ class PageForm(forms.ModelForm):
         # This way we don't need every field in the model present.
         # Some fields may allow NULL values, so we may not want to include them
         fields = ('title', 'url', 'views')
-
+     
