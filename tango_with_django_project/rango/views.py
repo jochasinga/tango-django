@@ -7,7 +7,7 @@
 # Import necessary modules
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponse
 
@@ -276,7 +276,7 @@ def user_login(req):
         if user:
             # Is the account active? It could have been disabled.
             if user.is_active:
-                # If the account is valide and active, we can log the user in
+                # If the account is valid and active, we can log the user in
                 # We'll send the user back to the homepage
                 login(req, user)
                 return HttpResponseRedirect('/rango/')
@@ -300,3 +300,11 @@ def user_login(req):
 @login_required
 def restricted(req):
     return HttpResponse("Since you're logged in, you can see this text!")
+
+@login_required
+def user_logout(req):
+    # Since we know the user is logged in, we can now just log them out.
+    logout(req)
+
+    # Take the user back to the homepage.
+    return HttpResponseRedirect('/rango/')
