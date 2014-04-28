@@ -8,6 +8,7 @@
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponse
 
 # Import the necessary models
@@ -296,3 +297,6 @@ def user_login(req):
         # blank dictionary object...
         return render_to_response('rango/login.html', {}, context)
 
+@login_required
+def restricted(req):
+    return HttpResponse("Since you're logged in, you can see this text!")
