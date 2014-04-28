@@ -5,9 +5,10 @@
 # we wish to send to the client requesting the view.
 
 # Import necessary modules
-from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response
+from django.contrib.auth import authenticate, login
+from django.http import HttpResponseRedirect, HttpResponse
 
 # Import the necessary models
 from rango.models import Category, Page
@@ -147,7 +148,7 @@ def add_category(req):
             # The user will be served with the index.html template
             return index(req)
 
-        else:
+        else:            
             # The supplied form contained errors - just print them to the terminal
             print form.errors
 
@@ -253,3 +254,45 @@ def register(req):
         'rango/register.html',
         {'user_form': user_form, 'profile_form': profile_form, 'registered': registered},
         context)
+
+def user_login(req):
+    context = RequestContext(req)
+
+    
+    if req.method == 'POST':
+        # Gather the username and password provided by the user
+        # This information is obtained from the login form
+        username = req.POST['username']
+        password = req.POST['password']
+
+        # Use Django's machinery to attempt to see if the username/password
+        # combination is valid - a User object is returned if it is
+        user = authenticate(username=username, password=password)
+
+        # If we have obtained a User object, the details are correct
+        # If None (Python's way of saying nil), no user with matching
+        # credentials was found
+        if user:
+            # Is the account active? It could have been disabled.
+            if user.is_active:
+                # If the account is valide and active, we can log the user in
+                # We'll send the user back to the homepage
+                login(req, user)
+                return HttpResponseRedirect('/rango/')
+            else:
+                # An inactive account was used - no logging in!
+                return HttpResponse("Your Rango account is disabled.")
+                # Maybe lead the user to enabled his account
+
+        else:
+            # Bad login details were provided. So we can't log the user in.
+            print "Invalid login details: {0}, {1}".format(username, password)
+            return HttpResponse("Invalide login details supplied.")
+
+    # The request is not HTTP POST, so display the login form.
+    # This scenario would most likely be a HTTP GET.
+    else:
+        # No context variables to pass to the template system, hence the
+        # blank dictionary object...
+        return render_to_response('rango/login.html', {}, context)
+
