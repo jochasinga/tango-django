@@ -161,10 +161,11 @@ def category(req, category_name_url):
     # render_to_response() shortcut function
     return render_to_response('rango/category.html', context_dict, context)
 
+
 @login_required
 def add_category(req):
 
-    """View used to new categories"""
+    """View used to add new categories"""
  
     # Get the context from the request.
     context = RequestContext(req)
@@ -323,7 +324,7 @@ def user_login(req):
         else:
             # Bad login details were provided. So we can't log the user in.
             print "Invalid login details: {0}, {1}".format(username, password)
-            return HttpResponse("Invalide login details supplied.")
+            return HttpResponse("Invalid login details supplied.")
 
     # The request is not HTTP POST, so display the login form.
     # This scenario would most likely be a HTTP GET.
