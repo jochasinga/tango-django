@@ -56,40 +56,27 @@ def index(req):
     # Place the lists in context_dict to be passed on as template argument
     context_dict = {'categories': category_list, 'pages': page_list}
 
-    # Return a rendered response to send to the client
-    # by mean of a render_to_response() shortcut function to make our lives easier.
-    # Note that the first parameter is the template we wish to use.
-    
-    # Also obtain our response object so we can add cookie info
-    res =  render_to_response('rango/index.html', context_dict, context)
-
-    # Get the number of visits to the site
-    # We use the COOKIES.get() function to obtain the visits cookie.
-    # If the cookie exists, the value returned is casted to an integer.
-    # If the cookie doesn't exist, we default to zero and cast that.
-    visits = int(req.COOKIES.get('visits', '0'))
-
     # Does the cookie last_visit exist?
-    if 'last_visit' in req.COOKIES:
+    if req.session.get('last_visit'):
         # Yes it does! Get the cookie's value.
-        last_visit = req.COOKIES['last_visit']
+        last_visit_time = req.session.get('last_visit')
+        visits = req.session.get('visits', 0)
         # Cast the value to a Python date/time object.
-        last_visit_time = datetime.strptime(last_visit[:-7], "%Y-%m-%d %H:%M:%S")
+        last_visit_time = datetime.strptime(last_visit_time[:-7], "%Y-%m-%d %H:%M:%S")
         
         # If it's been more than a day since the last visit...
-        if (datetime.now() - last_visit_time).days > 0:
-            # ...reassign the value of the cookie to +1 of what it was before...
-            res.set_cookie('visits', visits+1)
-            # ...and update the last visit cookie, too.
-            res.set_cookie('last_visit', datetime.now())
+        if (datetime.now() - last_visit_time).seconds > 10:
+            # increment the time visited
+            req.session['visits'] = visits + 1
+            req.session['last_visit'] = str(datetime.now())
 
     else:
-        # Cookie last_visit doesn't exist, so this is the first time this client
-        # visits us, so create it to the current date/time
-        res.set_cookie('last_visit', datetime.now())
+        # The get returns None, and the session doesn't have a value for the last visit
+        req.session['last_visit'] = str(datetime.now())
+        req.session['visits'] = 1
 
     # Return response back to the user, updating any cookies that need changed
-    return res
+    return render_to_response('rango/index.html', context_dict, context)
 
 # about view
 def about(req):

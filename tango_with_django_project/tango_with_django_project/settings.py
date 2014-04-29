@@ -116,8 +116,8 @@ MIDDLEWARE_CLASSES = (
 
 # Tell if the session should be browser-length or persistent
 # mark it to False to set to the latter, and set the variable
-# SESSION_COOKIE_AGE = <second>
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 120000
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 
 ROOT_URLCONF = 'tango_with_django_project.urls'
