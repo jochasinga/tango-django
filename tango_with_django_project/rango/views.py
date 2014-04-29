@@ -128,7 +128,7 @@ def category(req, category_name_url):
     # render_to_response() shortcut function
     return render_to_response('rango/category.html', context_dict, context)
 
-# add_category view
+@login_required
 def add_category(req):
 
     """View used to new categories"""
@@ -160,7 +160,8 @@ def add_category(req):
     # Bad form (or form details), no form supplied...
     # Render the form with error messages (if any).
     return render_to_response('rango/add_category.html', {'form':form}, context)
-            
+
+@login_required            
 def add_page(req, category_name_url):
     context = RequestContext(req)
 
