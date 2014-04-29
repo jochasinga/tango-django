@@ -4,10 +4,12 @@
 {% block title %}About{% endblock %}  
 
 {% block body_block %}
-    <h1>Rango yells...</h1>
+   <h1>Rango yells...</h1>
    <h2>This is all about me</h2><br />
-    <a href="/rango/index/">Index</a><br />
-    <img src="{% static "rango_overjoy.jpg" %}" alt="Picture of Overjoyed Rango" />
+   <a href="/rango/index/">Index</a><br />
+   <p>You have visited this site {{ visits }} times!</p>
+   <p>Last time visited {{ last_visit_time }}</p>
+   <img src="{% static "rango_overjoy.jpg" %}" alt="Picture of Overjoyed Rango" />
 {% endblock %}  
 
 

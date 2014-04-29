@@ -28,6 +28,7 @@ def encode_to_url(category_list):
     return category_list
 
 def decode_from_url(category_name_url):
+
     """Replace '_' in category's or page's url with ' '"""
     
     for category_name in category_name_url:
@@ -75,6 +76,9 @@ def index(req):
         req.session['last_visit'] = str(datetime.now())
         req.session['visits'] = 1
 
+    context_dict['visits'] = visits
+    context_dict['last_visit_time'] = last_visit_time
+
     # Return response back to the user, updating any cookies that need changed
     return render_to_response('rango/index.html', context_dict, context)
 
@@ -85,9 +89,25 @@ def about(req):
     
     # Query the HTTPRequest context
     context = RequestContext(req)
+
+    if req.session.get('last_visit'):
+        last_visit_time = req.session.get('last_visit')
+        visits = req.session.get('visits', 0)
+        last_visit_time = datetime.strptime(last_visit_time[:-7], "%Y-%m-%d %H:%M:%S")
+
+        if (datetime.now() - last_visit_time).seconds > 10:
+            req.session['visits'] = visits + 1
+            req.session['last_visit'] = str(datetime.now())
+
+    else:
+        req.session['visits'] = visits + 1
+        req.session['last_visit'] = str(datetime.now())
+
+    context_dict = {'visits': visits, 'last_visit_time': last_visit_time}
+        
      
     # Simply return the template, since no model data are used here
-    return render_to_response('rango/about.html', {}, context)
+    return render_to_response('rango/about.html', context_dict, context)
 
 
 # category view
