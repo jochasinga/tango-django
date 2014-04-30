@@ -1,7 +1,8 @@
 {% extends 'rango/base.html' %}
 {% block title %}{% endblock %}
 
-  {% block body_block %}
+{% block body_block %}
+  <div class="hero-unit">
     {% if user.is_authenticated %}
        <h1> Rango says...hello {{ user.username }}!</h1>
     {% else %}
@@ -29,5 +30,6 @@
     {% endif %}
        <p>You have visited our page <strong>{{ visits }}</strong> times!</p>
        <p>Last time you visited was <i>{{ last_visit_time }}</i></p>
-  {% endblock %}
+  </div>
+{% endblock %}
       

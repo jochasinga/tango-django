@@ -2,7 +2,8 @@
 
 {% block title %}{{ category_name }}{% endblock %}
 
-  {% block body_block %}
+{% block body_block %}
+  <div class="hero-unit">
     <h1>Login to Rango</h1>
 
     <form id="login_form" method="POST" action="/rango/login/">
@@ -14,5 +15,6 @@
 
       <input type="submit" value="submit" />
     </form>
-  {% endblock %}
+  </div>
+{% endblock %}
 
