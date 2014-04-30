@@ -52,10 +52,14 @@ def index(req):
     # Query databse for a list of ALL pages ordered by number of views (descending)
     page_list = Page.objects.order_by('-views')[:5]
 
-    category_list = encode_to_url(category_list)    
+    category_list = encode_to_url(category_list) 
+
+    visits = 0
+    last_visit_time = str(datetime.now())
 
     # Place the lists in context_dict to be passed on as template argument
     context_dict = {'categories': category_list, 'pages': page_list}
+             
 
     # Does the cookie last_visit exist?
     if req.session.get('last_visit'):
@@ -70,7 +74,7 @@ def index(req):
             # increment the time visited
             req.session['visits'] = visits + 1
             req.session['last_visit'] = str(datetime.now())
-
+        
     else:
         # The get returns None, and the session doesn't have a value for the last visit
         req.session['last_visit'] = str(datetime.now())

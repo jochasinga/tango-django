@@ -4,32 +4,45 @@
 {% block body_block %}
   <div class="hero-unit">
     {% if user.is_authenticated %}
-       <h1> Rango says...hello {{ user.username }}!</h1>
+    <h1>{{ user.username }}, Ready to Rango</h1>
     {% else %}
-       <h1>Rango says...hello world!</h1>
+    <h1>Ready to Rango</h1>
     {% endif %}
+    <p>Find, Add, Share and Rango useful links and resources</p>
+  </div>
 
-    {% if categories %}
-       <ul>
+  <div class="row-fluid">
+    <div class="span6">
+      <h2>Top Five Categories</h2>
+        {% if categories %}
+        <ul>
 	    {% for cat in categories %}
 	    <li><a href="/rango/category/{{ cat.url }}">{{ cat.name }}</a></li>
 	    {% endfor %}
        </ul>
-    {% else %}
+       {% else %}
        <strong>There are no categories present.</strong>
-    {% endif %}
-
-    {% if pages %}
+       {% endif %}
+     </div>
+     <!--/span-->
+     <div class="span6">
+       <h2>Top Five Pages</h2>
+       {% if pages %}
        <ul>
 	    {% for page in pages %}
 	    <li><a href="{{ page.url }}">{{ page.title }}</a></li>
 	    {% endfor %}
        </ul>
-    {% else %}
+       {% else %}
        <strong>There are no pages present.</strong>
-    {% endif %}
+       {% endif %}
+     </div>
+     <!--/span-->
+</div>
+<!--/row-->
+<footer>
        <p>You have visited our page <strong>{{ visits }}</strong> times!</p>
        <p>Last time you visited was <i>{{ last_visit_time }}</i></p>
-  </div>
+</footer>
 {% endblock %}
       
