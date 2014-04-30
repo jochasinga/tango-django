@@ -53,7 +53,8 @@ def index(req):
     page_list = Page.objects.order_by('-views')[:5]
 
     category_list = encode_to_url(category_list) 
-
+    
+    # Set default
     visits = 0
     last_visit_time = str(datetime.now())
 
