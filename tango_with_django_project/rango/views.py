@@ -15,6 +15,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from rango.models import Category, Page
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 from datetime import datetime
+from rango.bing_search import run_query
 
 # Do function overloading here tonight
 def encode_to_url(category_list):
@@ -350,3 +351,18 @@ def user_logout(req):
 
     # Take the user back to the homepage.
     return HttpResponseRedirect('/rango/')
+
+@login_required
+def search(req):
+    context = RequestContext(req)
+    result_list = []
+
+    if req.method == 'POST':
+        query = req.POST['query'].strip()
+
+        if query:
+            # Run our Bing function to get the results list
+            result_list = run_query(query)
+
+    return render_to_response('rango/search.html', {'result_list': result_list}, context)
+

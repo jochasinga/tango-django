@@ -40,7 +40,7 @@ def run_query(search_terms):
 
     try:
         # Prepare for connecting to Bing's servers.
-        handler = urlllib2.HTTPBasicAuthHandler(password_mgr)
+        handler = urllib2.HTTPBasicAuthHandler(password_mgr)
         opener = urllib2.build_opener(handler)
         urllib2.install_opener(opener)
 
@@ -63,3 +63,14 @@ def run_query(search_terms):
 
     # Return the list of results to the calling function.
     return results
+
+if __name__ == '__main__':
+  term = raw_input("Enter your search term: ")
+  results = run_query(term)
+  rank = 1
+  for result in results:
+      print rank, ")", result['title'], result['link']
+      print result['summary']
+      print ''
+      rank = rank + 1
+
