@@ -1,8 +1,19 @@
-# Each view is one function.
-# Each view takes in at least one argument - a HttpRequest object.
-# Each view must return a HttpResponse object. A simple HttpResponse
-# object takes a string parameter representing the content of the page
-# we wish to send to the client requesting the view.
+# Each view is a function (or class) which...
+# ...takes in at least one argument - a HttpRequest object.
+# ...return a HttpResponse object.
+ 
+# A simple HttpResponse object takes a string parameter 
+# representing the content of the page we wish to send to 
+# the client requesting the view.
+
+# Optionally, a helper function render_to_response takes 
+# three arguments - an html url to render, a context dictionary,
+# and a context.
+
+# The general workflow of a view function are...
+# Request a context of the HttpRequest => Set all your variables =>
+# Put your variables into context_dict => Pass context_dict and context
+# into render_to_response function to render away the template!
 
 # Import necessary modules
 from django.template import RequestContext
@@ -17,51 +28,110 @@ from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 from datetime import datetime
 from rango.bing_search import run_query
 
-# Do function overloading here tonight
-def encode_to_url(category_list):
-    """Replace ' ' in category's or page's name with '_'"""
+def simple_encode_decode(any_string):
 
-    for category in category_list:
-        # Make a URL String out of category String
-        category.url = category.name.replace(' ', '_')
-    
-    # return a list    
-    return category_list
+    """An adhoc, general function that replace ' ' with '_' in any string provided,
+       and the other way round.
+    """
+    if type(any_string) == str or type(any_string) == unicode:
+        # Detect if there's a blank space within the string
+        # and replace it with '_'
+        if ' ' in any_string:
+            any_string = any_string.replace(' ', '_')
+            # Else if '_' is detected, ' ' will replace it.
+        elif '_' in any_string:
+            any_string = any_string.replace('_', ' ')
+        else:
+            print "String has no ' ' or '_', passing gracefully..."
+            pass
+    else:
+        raise TypeError("Not of type <'str'> or <'unicode'>")
+
+    return any_string
+
+def encode_to_url(cat_list):
+
+    """Recursively replace ' ' in category's name with '_' by taking a list,
+       iterating through each category name. 
+    """
+    for cat in cat_list:
+        if hasattr(cat, 'name'):
+            cat.url = cat.name.replace(' ', '_')
+        else:
+            raise AttributeError("Category object has no attribute 'name'")
+
+    # return a string joined by '_'
+    return cat_list
 
 def decode_from_url(category_name_url):
 
     """Replace '_' in category's or page's url with ' '"""
-    
+
     for category_name in category_name_url:
-       # Make a category string out of URL string
-       category_name = category_name_url.replace('_', ' ')
-    
-    # return a string
+        # Make a category string out of URL string
+        category_name = category_name_url.replace('_', ' ')
+
+    # return a string joined by ' '
     return category_name
 
+def get_category_list(n='all', order='likes'):
+
+    """Helper function to get cat_list"""
+
+    if n == 'all':
+        cat_list = Category.objects.all()
+        if order == 'likes':
+            cat_list = Category.objects.order_by('-likes')[:]
+        elif order == 'name':
+            cat_list = Category.objects.order_by('-name')[:]
+        elif order == 'visits':
+            cat_list = Category.objects.order_by('-visits')[:]
+        else:
+            print "order = ['likes', 'name', 'visits']"
+        
+    elif type(n) == int and n >= 0:
+        if order == 'likes':
+            cat_list = Category.objects.order_by('-likes')[:n]
+        elif order =='name':
+            cat_list = Category.objects.order_by('-name')[:n]
+        elif order == 'visits':
+            cat_list = Category.objects.order_by('-visits')[:n]
+        else:
+            raise ValueError("Category object has no attribute %s" %(order,))
+    else:
+        raise TypeError("n must be an integer more than or equals to 0")
+    
+    for cat in cat_list:
+        cat.url = simple_encode_decode(cat.name)
+
+    return cat_list
+    
 # index view
 def index(req):
-    
+
     """View for index page"""
 
     # Request the context of the HTTP request
     context = RequestContext(req)
 
     # Query database for a list of ALL categories ordered by no. of likes(descending)
-    category_list = Category.objects.order_by('-likes')[:5]    
+    # cat_list = Category.objects.order_by('-likes')[:5]
     
-    # Query databse for a list of ALL pages ordered by number of views (descending)
+    # Query database for a list of ALL categories (see get_category_list function)
+    # cat_list = Category.objects.all()
+    # cat_list = encode_to_url(cat_list)
+
+    cat_list = get_category_list()
+
+    # Query database for a list of ALL pages ordered by number of views (descending)
     page_list = Page.objects.order_by('-views')[:5]
 
-    category_list = encode_to_url(category_list) 
-    
     # Set default
     visits = 0
     last_visit_time = str(datetime.now())
 
     # Place the lists in context_dict to be passed on as template argument
-    context_dict = {'categories': category_list, 'pages': page_list}
-             
+    context_dict = {'cat_list': cat_list, 'pages': page_list}
 
     # Does the cookie last_visit exist?
     if req.session.get('last_visit'):
@@ -70,13 +140,13 @@ def index(req):
         visits = req.session.get('visits', 0)
         # Cast the value to a Python date/time object.
         last_visit_time = datetime.strptime(last_visit_time[:-7], "%Y-%m-%d %H:%M:%S")
-        
+
         # If it's been more than a day since the last visit...
         if (datetime.now() - last_visit_time).seconds > 10:
             # increment the time visited
             req.session['visits'] = visits + 1
             req.session['last_visit'] = str(datetime.now())
-        
+
     else:
         # The get returns None, and the session doesn't have a value for the last visit
         req.session['last_visit'] = str(datetime.now())
@@ -88,11 +158,12 @@ def index(req):
     # Return response back to the user, updating any cookies that need changed
     return render_to_response('rango/index.html', context_dict, context)
 
+
 # about view
 def about(req):
-    
+
     """View serving the about page"""
-    
+
     # Query the HTTPRequest context
     context = RequestContext(req)
 
@@ -110,15 +181,14 @@ def about(req):
         req.session['last_visit'] = str(datetime.now())
 
     context_dict = {'visits': visits, 'last_visit_time': last_visit_time}
-        
-     
+
     # Simply return the template, since no model data are used here
     return render_to_response('rango/about.html', context_dict, context)
 
 
 # category view
 def category(req, category_name_url):
-    
+
     """
     This view take an additional parameter, category_name_url
     which will store the decoded category name. We will need
@@ -136,8 +206,8 @@ def category(req, category_name_url):
 
     # Create a context dictionary which we can pass to the template rendering engine
     # We start by containing the name of the category passed by the user
-    context_dict = { 'category_name': category_name,
-                     'category_name_url': category_name_url }
+    context_dict = {'category_name': category_name,
+                    'category_name_url': category_name_url}
 
     try:
         # Can we find a category with the given name?
@@ -167,12 +237,10 @@ def category(req, category_name_url):
     # render_to_response() shortcut function
     return render_to_response('rango/category.html', context_dict, context)
 
-
 @login_required
 def add_category(req):
-
     """View used to add new categories"""
- 
+
     # Get the context from the request.
     context = RequestContext(req)
 
@@ -189,7 +257,7 @@ def add_category(req):
             # The user will be served with the index.html template
             return index(req)
 
-        else:            
+        else:
             # The supplied form contained errors - just print them to the terminal
             print form.errors
 
@@ -199,9 +267,9 @@ def add_category(req):
 
     # Bad form (or form details), no form supplied...
     # Render the form with error messages (if any).
-    return render_to_response('rango/add_category.html', {'form':form}, context)
+    return render_to_response('rango/add_category.html', {'form': form}, context)
 
-@login_required            
+@login_required
 def add_page(req, category_name_url):
     context = RequestContext(req)
 
@@ -215,7 +283,7 @@ def add_page(req, category_name_url):
             page = form.save(commit=False)
 
             try:
-                cat = Category.objects.get(name = category_name)
+                cat = Category.objects.get(name=category_name)
                 page.category = cat
             except Category.DoesNotExist:
                 return render_to_response('rango/add_category.html', {}, context)
@@ -233,12 +301,11 @@ def add_page(req, category_name_url):
     else:
         form = PageForm()
 
-    return render_to_response( 'rango/add_page.html', {'category_name_url': category_name_url,
-                                                       'category_name': category_name,
-                                                       'form': form}, context)
+    return render_to_response('rango/add_page.html', {'category_name_url': category_name_url,
+                                                      'category_name': category_name,
+                                                      'form': form}, context)
 
 def register(req):
-
     # Like before, get the request's context
     context = RequestContext(req)
 
@@ -280,7 +347,7 @@ def register(req):
             # Update our variable to tell the template registration is successful.
             registered = True
 
-        # Invalide form or forms - mistakes or something else?
+        # Invalid form or forms - mistakes or something else?
         # Print problems to the terminal
         # They'll also be shown to the user.
         else:
@@ -301,7 +368,6 @@ def register(req):
 def user_login(req):
     context = RequestContext(req)
 
-    
     if req.method == 'POST':
         # Gather the username and password provided by the user
         # This information is obtained from the login form
@@ -342,7 +408,7 @@ def user_login(req):
 @login_required
 def restricted(req):
     context = RequestContext(req)
-    return render_to_response('rango/restricted.html', {}, context )
+    return render_to_response('rango/restricted.html', {}, context)
 
 @login_required
 def user_logout(req):
@@ -352,7 +418,6 @@ def user_logout(req):
     # Take the user back to the homepage.
     return HttpResponseRedirect('/rango/')
 
-@login_required
 def search(req):
     context = RequestContext(req)
     result_list = []
@@ -365,4 +430,5 @@ def search(req):
             result_list = run_query(query)
 
     return render_to_response('rango/search.html', {'result_list': result_list}, context)
+
 
