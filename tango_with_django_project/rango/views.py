@@ -208,12 +208,6 @@ def category(req, category_name_url):
     # category_name = category_name_url.replace('_', ' ')
     category_name = decode_from_url(category_name_url)
 
-    # Create a context dictionary which we can pass to the template rendering engine
-    # We start by containing the name of the category passed by the user
-    context_dict = {'cat_list': cat_list,
-                    'category_name': category_name,
-                    'category_name_url': category_name_url}
-
     try:
         # Can we find a category with the given name?
         # If we can't, the .get() method raises a DoesNotExist exception.
@@ -226,17 +220,31 @@ def category(req, category_name_url):
 
         # Adds our results list to the template context under name pages
         # context_dict = { 'category_name': category_name, 'pages': pages }
-        context_dict['pages'] = pages
+        # context_dict['pages'] = pages
 
         # We also add the category object from the database to the context dictionary
         # We'll use this in the template to verify that the category exists
         # context_dict = { 'category_name': category_name, 'pages':pages, 'category': category }
-        context_dict['category'] = category
-
+        # context_dict['category'] = category
+    
     except Category.DoesNotExist:
         # We get here if we didn't find the specified category.
         # Don't do anything - the template displays the "no category" message for us.
         pass
+
+    # Create a context dictionary which we can pass to the template rendering engine
+    # We start by containing the name of the category passed by the user
+    context_dict = {'cat_list': cat_list,
+                    'category_name': category_name,
+                    'category_name_url': category_name_url,
+                    'pages': pages,
+                    'category': category}
+
+    if req.method == 'POST':
+        query = req.POST['query'].strip()
+        if query:
+            result_list = run_query(query)
+            context_dict['result_list'] = result_list
 
     # Go render the response and return it to the client using the over-convenient
     # render_to_response() shortcut function
