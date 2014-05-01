@@ -42,7 +42,6 @@ def simple_encode_decode(any_string):
         elif '_' in any_string:
             any_string = any_string.replace('_', ' ')
         else:
-            print "String has no ' ' or '_', passing gracefully..."
             pass
     else:
         raise TypeError("Not of type <'str'> or <'unicode'>")
@@ -167,6 +166,8 @@ def about(req):
     # Query the HTTPRequest context
     context = RequestContext(req)
 
+    cat_list = get_category_list()
+
     if req.session.get('last_visit'):
         last_visit_time = req.session.get('last_visit')
         visits = req.session.get('visits', 0)
@@ -180,7 +181,7 @@ def about(req):
         req.session['visits'] = visits + 1
         req.session['last_visit'] = str(datetime.now())
 
-    context_dict = {'visits': visits, 'last_visit_time': last_visit_time}
+    context_dict = {'cat_list': cat_list, 'visits': visits, 'last_visit_time': last_visit_time}
 
     # Simply return the template, since no model data are used here
     return render_to_response('rango/about.html', context_dict, context)
@@ -198,6 +199,9 @@ def category(req, category_name_url):
     # Request our context from the request passed to us.
     context = RequestContext(req)
 
+    # Retrieve categories list for the left navbar
+    cat_list = get_category_list()
+
     # Change underscores in the category name to spaces
     # URLs don't handle spaces well, so we encode them as underscores.
     # We can then simply replace the underscores with spaces again to get the name.
@@ -206,7 +210,8 @@ def category(req, category_name_url):
 
     # Create a context dictionary which we can pass to the template rendering engine
     # We start by containing the name of the category passed by the user
-    context_dict = {'category_name': category_name,
+    context_dict = {'cat_list': cat_list,
+                    'category_name': category_name,
                     'category_name_url': category_name_url}
 
     try:
@@ -244,6 +249,9 @@ def add_category(req):
     # Get the context from the request.
     context = RequestContext(req)
 
+    # Retrieve categories list for the left navbar
+    cat_list = get_category_list()
+
     # A HTTP POST? If so, provide a form for posting a new category
     if req.method == 'POST':
         form = CategoryForm(req.POST)
@@ -265,15 +273,21 @@ def add_category(req):
         # If the request wasn't a POST, display the form to enter details
         form = CategoryForm()
 
+    context_dict = {'cat_list': cat_list, 'form': form}
+
     # Bad form (or form details), no form supplied...
     # Render the form with error messages (if any).
-    return render_to_response('rango/add_category.html', {'form': form}, context)
+    return render_to_response('rango/add_category.html', context_dict, context)
 
 @login_required
 def add_page(req, category_name_url):
-    context = RequestContext(req)
 
+    """A view to add page to a category"""
+
+    context = RequestContext(req)
+    cat_list = get_category_list()
     category_name = decode_from_url(category_name_url)
+
     if req.method == 'POST':
         form = PageForm(req.POST)
 
@@ -301,14 +315,17 @@ def add_page(req, category_name_url):
     else:
         form = PageForm()
 
-    return render_to_response('rango/add_page.html', {'category_name_url': category_name_url,
-                                                      'category_name': category_name,
-                                                      'form': form}, context)
+    context_dict = {'cat_list': cat_list,
+                    'category_name_url': category_name_url,
+                    'category_name': category_name,
+                    'form': form}
+
+    return render_to_response('rango/add_page.html', context_dict, context)
 
 def register(req):
     # Like before, get the request's context
     context = RequestContext(req)
-
+    cat_list = get_category_list()
     # A boolean value for telling the template whether the registration was successful.
     # Set to False initially. Code changes value to True when registration succeeds.
     registered = False
@@ -359,15 +376,17 @@ def register(req):
         user_form = UserForm()
         profile_form = UserProfileForm()
 
+    context_dict = {'cat_list': cat_list,
+                    'user_form': user_form, 
+                    'profile_form': profile_form, 
+                    'registered': registered}
+
     # Render the template depending on the context
-    return render_to_response(
-        'rango/register.html',
-        {'user_form': user_form, 'profile_form': profile_form, 'registered': registered},
-        context)
+    return render_to_response('rango/register.html', context_dict, context)
 
 def user_login(req):
     context = RequestContext(req)
-
+    cat_list = get_category_list()
     if req.method == 'POST':
         # Gather the username and password provided by the user
         # This information is obtained from the login form
@@ -403,12 +422,13 @@ def user_login(req):
     else:
         # No context variables to pass to the template system, hence the
         # blank dictionary object...
-        return render_to_response('rango/login.html', {}, context)
+        return render_to_response('rango/login.html', {'cat_list': cat_list}, context)
 
 @login_required
 def restricted(req):
     context = RequestContext(req)
-    return render_to_response('rango/restricted.html', {}, context)
+    cat_list = get_category_list()
+    return render_to_response('rango/restricted.html', {'cat_list': cat_list}, context)
 
 @login_required
 def user_logout(req):
@@ -420,6 +440,7 @@ def user_logout(req):
 
 def search(req):
     context = RequestContext(req)
+    cat_list = get_category_list()
     result_list = []
 
     if req.method == 'POST':
@@ -428,7 +449,9 @@ def search(req):
         if query:
             # Run our Bing function to get the results list
             result_list = run_query(query)
+            
+    context_dict = {'cat_list': cat_list, 'result_list': result_list}
 
-    return render_to_response('rango/search.html', {'result_list': result_list}, context)
+    return render_to_response('rango/search.html', context_dict, context)
 
 
