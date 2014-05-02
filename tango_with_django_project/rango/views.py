@@ -15,18 +15,22 @@
 # Put your variables into context_dict => Pass context_dict and context
 # into render_to_response function to render away the template!
 
-# Import necessary modules
+# Shortcuts
 from django.template import RequestContext
 from django.shortcuts import render_to_response
+from django.shortcuts import redirect
+# Authentication
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+# Basic HTTP functions
 from django.http import HttpResponseRedirect, HttpResponse
-
 # Import the necessary models
 from rango.models import Category, Page
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
+# Basic Python modules
 from datetime import datetime
+# External functions
 from rango.bing_search import run_query
 
 def simple_encode_decode(any_string):
@@ -490,4 +494,23 @@ def search(req):
 
     return render_to_response('rango/search.html', context_dict, context)
 
+def track_url(req):
+    
+    """Track the number of times each page is clicked and viewed"""
+
+    context = RequestContext(req)
+    page_id = None
+    url = '/rango/'
+    if req.method == 'GET':
+        if 'page_id' in req.GET:
+            page_id = req.GET['page_id']
+            try:
+                page = Page.objects.get(id=page_id)
+                page.views = page.views + 1
+                page.save()
+                url = page.url
+            except:
+                pass
+    
+    return redirect(url)
 

@@ -31,10 +31,10 @@ urlpatterns = patterns('',
     url(r'^restricted/$', views.restricted, name='restricted'),
 
     url(r'^logout/$', views.user_logout, name='logout'),
-    # Decommissioned
-    # url(r'^search/$', views.search, name='search'),
-
+    # Profile page
     url(r'^profile/$', views.profile, name='profile'),
+    # Track URL view
+    url(r'^goto/$', views.track_url, name='track_url'),
 )
 
 
