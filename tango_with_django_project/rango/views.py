@@ -187,6 +187,15 @@ def about(req):
     # Simply return the template, since no model data are used here
     return render_to_response('rango/about.html', context_dict, context)
 
+# myass view
+def myass(req):
+    "Bonus view \|^_^|/"
+    
+    # Quary the HTTP Request context (GET or POST)
+    context = RequestContext(req)
+
+    # Simply return the myass template
+    return render_to_response('rango/myass.html', context)
 
 # category view
 def category(req, category_name_url):
@@ -207,6 +216,7 @@ def category(req, category_name_url):
     # URLs don't handle spaces well, so we encode them as underscores.
     # We can then simply replace the underscores with spaces again to get the name.
     # category_name = category_name_url.replace('_', ' ')
+    
     category_name = decode_from_url(category_name_url)
 
     try:
@@ -218,7 +228,7 @@ def category(req, category_name_url):
         # Retrieve all of the associated pages.
         # Note that filter returns >= 1 model instance
         pages = Page.objects.filter(category=category)
-
+        
         # Adds our results list to the template context under name pages
         # context_dict = { 'category_name': category_name, 'pages': pages }
         # context_dict['pages'] = pages
