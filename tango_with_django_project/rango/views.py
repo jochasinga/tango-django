@@ -20,6 +20,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, HttpResponse
 
 # Import the necessary models
@@ -445,6 +446,23 @@ def user_logout(req):
 
     # Take the user back to the homepage.
     return HttpResponseRedirect('/rango/')
+
+@login_required
+def profile(req):
+    context = RequestContext(req)
+    cat_list = get_category_list()
+    context_dict = {'cat_list': cat_list}
+    u = User.objects.get(username=req.user)
+
+    try:
+        up = UserProfile.objects.get(user=u)
+    except:
+        up = None
+
+    context_dict['user'] = u
+    context_dict['userprofile'] = up
+
+    return render_to_response('rango/profile.html', context_dict, context)
 
 def search(req):
     context = RequestContext(req)
