@@ -114,6 +114,12 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+# Tell if the session should be browser-length or persistent
+# mark it to False to set to the latter, and set the variable
+SESSION_COOKIE_AGE = 120000
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+
 ROOT_URLCONF = 'tango_with_django_project.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
@@ -139,6 +145,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'rango',
 )
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
