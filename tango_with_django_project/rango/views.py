@@ -223,19 +223,22 @@ def category(req, category_name_url):
     
     category_name = decode_from_url(category_name_url)
 
+    context_dict = {'cat_list': cat_list, 'category_name': category_name}
     try:
         # Can we find a category with the given name?
         # If we can't, the .get() method raises a DoesNotExist exception.
         # So the .get() method returns one model instance or raises an exception
         category = Category.objects.get(name=category_name)
+        
+        # Add category to the context so that we can access the ids and likes
+        context_dict['category'] = category
 
         # Retrieve all of the associated pages.
         # Note that filter returns >= 1 model instance
         pages = Page.objects.filter(category=category)
         
         # Adds our results list to the template context under name pages
-        # context_dict = { 'category_name': category_name, 'pages': pages }
-        # context_dict['pages'] = pages
+        context_dict['pages'] = pages
 
         # We also add the category object from the database to the context dictionary
         # We'll use this in the template to verify that the category exists
@@ -249,6 +252,7 @@ def category(req, category_name_url):
 
     # Create a context dictionary which we can pass to the template rendering engine
     # We start by containing the name of the category passed by the user
+
     context_dict = {'cat_list': cat_list,
                     'category_name': category_name,
                     'category_name_url': category_name_url,
@@ -514,3 +518,31 @@ def track_url(req):
     
     return redirect(url)
 
+@login_required
+def like_category(req):
+    context = RequestContext(req)
+    # Set cat_id to None
+    cat_id = None
+    # If the browser is requesting...
+    if req.method == 'GET':
+        # get the 'category_id' from the client and store 
+        # in cat_id
+        cat_id = req.GET['category_id']
+
+    # Set likes to 0
+    likes = 0
+    
+    # If cat_id exists
+    if cat_id:
+        # Retrieve category with the id=cat_id
+        category = Category.objects.get(id=int(cat_id))
+        # And if that category object exists
+        if category:
+            # Add one like to category's like
+            likes = category.likes + 1
+            # Update the category.likes
+            category.likes = likes
+            # save the category's new data
+            category.save()
+            
+    return HttpResponse(likes)
