@@ -583,3 +583,34 @@ def suggest_category(req):
     cat_list = get_cat_list(8, starts_with)
 
     return render_to_response('rango/category_list.html', {'cat_list': cat_list}, context)
+
+@login_required
+def auto_add_page(req):
+    
+    """Add page automatically with AJAX"""
+    
+    context = RequestContext(req)
+    cat_id = None
+    url = None
+    title = None
+    context_dict = {}
+    if req.method == 'GET':
+
+        cat_id = req.GET['category_id']
+        url = req.GET['url']
+        title = req.GET['title']
+
+        if cat_id:
+            category = Category.objects.get(id=int(cat_id))
+            p = Page.objects.get_or_create(category=category, title=title, url=url)
+
+            pages = Page.objects.filter(category=category).order_by('-views')
+
+            # Adds our results list  to the template context under name pages
+            context_dict['pages'] = pages
+
+    return render_to_response('rango/category.html', context_dict, context)
+
+
+    
+    

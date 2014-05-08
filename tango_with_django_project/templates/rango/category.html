@@ -8,9 +8,11 @@
          <p>
 	   <b id="like_count">{{ category.likes }}</b> people like this category
 	   {% if user.is_authenticated %}
-	     <button id="likes" data-catid="{{category.id}}" class="btn btn-mini btn-primary" data-toggle="button" type="button">Like</button>
+	     <button id="likes" data-catid="{{category.id}}" class="btn btn-mini btn-primary"
+		     data-toggle="button" type="button">Like</button>
 	   {% endif %}
 	 </p>
+	 <div id="page">
           {% if pages %}
              <ul>
 	        {% for page in pages %}
@@ -25,6 +27,7 @@
 		    {% endif %}
 	        {% endfor %}
 	     </ul>
+	  </div>
           {% else %}
 	     <strong>No pages currently in category.</strong>
 	  {% endif %}
