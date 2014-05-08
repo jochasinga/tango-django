@@ -32,6 +32,7 @@ from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 from datetime import datetime
 # External functions
 from rango.bing_search import run_query
+import rango.get_category_list
 
 def simple_encode_decode(any_string):
 
@@ -546,3 +547,17 @@ def like_category(req):
             category.save()
             
     return HttpResponse(likes)
+
+def suggest_category(req):
+    
+    """Return the top max_results matching category results"""
+
+    context = RequestContext(req)
+    cat_list = []
+    starts_with = ''
+    if req.method == 'GET':
+        starts_with = req.GET['suggestion']
+
+    cat_list = get_category_list(8, starts_with)
+
+    return render_to_response('rango/category_list.html', {'cat_list': cat_list}, context)
