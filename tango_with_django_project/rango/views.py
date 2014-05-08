@@ -32,7 +32,6 @@ from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 from datetime import datetime
 # External functions
 from rango.bing_search import run_query
-import rango.get_category_list
 
 def simple_encode_decode(any_string):
 
@@ -53,6 +52,28 @@ def simple_encode_decode(any_string):
         raise TypeError("Not of type <'str'> or <'unicode'>")
 
     return any_string
+
+def get_cat_list(max_results=0, starts_with=''):
+    
+    """
+    Helper function to get a list of categories according to specified
+    maximum results and leading character(s)
+    """
+    cat_list = []
+    if starts_with:
+        cat_list = Category.objects.filter(name__istartswith=starts_with)
+    else:
+        cat_list = Category.objects.all()
+
+    if max_results > 0:
+        if len(cat_list) > max_results:
+            cat_list = cat_list[:max_results]
+
+    for cat in cat_list:
+        cat.url = simple_encode_decode(cat.name)
+
+    return cat_list
+
 
 def encode_to_url(cat_list):
 
@@ -553,11 +574,12 @@ def suggest_category(req):
     """Return the top max_results matching category results"""
 
     context = RequestContext(req)
+
     cat_list = []
     starts_with = ''
     if req.method == 'GET':
         starts_with = req.GET['suggestion']
 
-    cat_list = get_category_list(8, starts_with)
+    cat_list = get_cat_list(8, starts_with)
 
     return render_to_response('rango/category_list.html', {'cat_list': cat_list}, context)
