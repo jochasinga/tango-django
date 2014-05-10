@@ -589,21 +589,28 @@ def auto_add_page(req):
     
     """Add page automatically with AJAX"""
     
+    # As usual, request the context of HttpRequest
     context = RequestContext(req)
+    # Set cat_id, url, and title of the page to None
     cat_id = None
-    url = None
-    title = None
+    p_url = None
+    p_title = None
     context_dict = {}
+
+    # If the client is trying to GET
     if req.method == 'GET':
-
+        # Get cat_id from the 'category_id' of the request
+        # which is category_id in rango-ajax.js
         cat_id = req.GET['category_id']
-        url = req.GET['url']
-        title = req.GET['title']
-
+        p_url = req.GET['url']
+        p_title = req.GET['title']
+        
+        # if cat_id exists
         if cat_id:
+            # Get the category with the id = cat_id
             category = Category.objects.get(id=int(cat_id))
-            p = Page.objects.get_or_create(category=category, title=title, url=url)
-
+            
+            pages = Page.objects.get_or_create(category=category, title=p_title, url=p_url)
             pages = Page.objects.filter(category=category).order_by('-views')
 
             # Adds our results list  to the template context under name pages

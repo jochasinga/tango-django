@@ -10,11 +10,13 @@ $(document).ready(function(){
 		    });
 	    });
 	$('.rango-add').click(function(){
-		var catid;
+		var catid, title, url
 		catid = $(this).attr("data-catid");
-		$.get('/rango/auto_add_page/', { category_id: catid }, function(data){
+		title = $(this).attr("data-title");
+		url = $(this).attr("data-url");
+	        $(this).addClass("disabled");
+	        $.get('/rango/auto_add_page/', { category_id: catid, title: title, url: url}, function(data){
 			$('#page').html(data);
-			$('.rango-add').addClass("disabled");
 		    });
 	    });
  
