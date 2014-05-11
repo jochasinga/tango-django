@@ -1,12 +1,12 @@
 import os
 
 def populate():
-    python_cat = add_cat('Python', 56, 66)
+    python_cat = add_cat('Python', visits=128, likes=64)
 
     add_page(cat=python_cat,
              title="Official Python Tutorial",
              url="http://docs.python.org/2/tutorial/",
-             views=12,
+             views=12
     )
 
     add_page(cat=python_cat,
@@ -21,7 +21,7 @@ def populate():
              views=200
     )
 
-    django_cat = add_cat("Django", 32, 13)
+    django_cat = add_cat("Django", visits=32, likes=13)
 
     add_page(cat=django_cat,
         title="Official Django Tutorial",
@@ -41,7 +41,7 @@ def populate():
         views=3
     )
 
-    frame_cat = add_cat("Other Frameworks", 102, 345)
+    frame_cat = add_cat("Other Frameworks", visits=102, likes=345)
 
     add_page(cat=frame_cat,
         title="Bottle",
@@ -72,6 +72,6 @@ def add_cat(name, visits=0, likes=0):
 if __name__ == '__main__':
     print "Starting Rango population script..."
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tango_with_django_project.settings')
-    from rango.models import Category, Page
+    from rango.models import Category, Page    
     populate()
 

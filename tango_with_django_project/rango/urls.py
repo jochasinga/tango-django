@@ -22,7 +22,7 @@ urlpatterns = patterns('',
     # map path '/category/any_category_name_here/' to category view 
     url(r'^category/(?P<category_name_url>\w+)/$', views.category, name='category'),
 
-    url(r'^category/(?P<category_name_url>\w+)/add_page/$', views.add_page, name='add page'),
+    url(r'^category/(?P<category_name_url>\w+)/add_page/$', views.add_page, name='add_page'),
 
     url(r'^register/$', views.register, name='register'),
 
@@ -39,7 +39,6 @@ urlpatterns = patterns('',
     url(r'^like_category/$', views.like_category, name='like_category'),
 
     url(r'^suggest_category/$', views.suggest_category, name='suggest_category'),
-
     url(r'^auto_add_page/$', views.auto_add_page, name='auto_add_page'),
 )
 

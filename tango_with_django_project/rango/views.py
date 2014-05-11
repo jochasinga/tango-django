@@ -39,13 +39,15 @@ def simple_encode_decode(any_string):
        and the other way round.
     """
     if type(any_string) == str or type(any_string) == unicode:
-        # Detect if there's a blank space within the string
-        # and replace it with '_'
+
+        # if <any_string> contains a blank space, replace them with '_'
         if ' ' in any_string:
             any_string = any_string.replace(' ', '_')
-            # Else if '_' is detected, ' ' will replace it.
+
+        # Else if '_' is detected, do it the other way.
         elif '_' in any_string:
             any_string = any_string.replace('_', ' ')
+
         else:
             pass
     else:
@@ -59,17 +61,24 @@ def get_cat_list(max_results=0, starts_with=''):
     Helper function to get a list of categories according to specified
     maximum results and leading character(s)
     """
+    # Set cat_list list
     cat_list = []
+    # If <starts_with> character or string exists
     if starts_with:
+        # get all categories starting with <starts_with>
         cat_list = Category.objects.filter(name__istartswith=starts_with)
     else:
+        # get all categories
         cat_list = Category.objects.all()
-
+    # If <max_results> is more than 0
     if max_results > 0:
+        # and if cat_list's length is more than <max_results>
         if len(cat_list) > max_results:
+            # Subset cat_list up to max_results
             cat_list = cat_list[:max_results]
-
+    # For every category in cat_list,
     for cat in cat_list:
+        # convert category's name to category's url
         cat.url = simple_encode_decode(cat.name)
 
     return cat_list
@@ -234,7 +243,6 @@ def category(req, category_name_url):
 
     # Request our context from the request passed to us.
     context = RequestContext(req)
-
     # Retrieve categories list for the left navbar
     cat_list = get_category_list()
 
@@ -242,7 +250,6 @@ def category(req, category_name_url):
     # URLs don't handle spaces well, so we encode them as underscores.
     # We can then simply replace the underscores with spaces again to get the name.
     # category_name = category_name_url.replace('_', ' ')
-    
     category_name = decode_from_url(category_name_url)
 
     context_dict = {'cat_list': cat_list, 'category_name': category_name}
@@ -274,13 +281,14 @@ def category(req, category_name_url):
 
     # Create a context dictionary which we can pass to the template rendering engine
     # We start by containing the name of the category passed by the user
-    """
+
     context_dict = {'cat_list': cat_list,
                     'category_name': category_name,
                     'category_name_url': category_name_url,
                     'pages': pages,
                     'category': category}
-    """
+
+    #context_dict['category_name_url'] = category_name_url
 
     if req.method == 'POST':
         query = req.POST['query'].strip()
@@ -351,13 +359,10 @@ def add_page(req, category_name_url):
                 page.category = cat
             except Category.DoesNotExist:
                 return render_to_response('rango/add_category.html', {}, context)
-
             # Also, create a default value for the number of views.
             page_views = 0
-
             # With this, we can then save our new model instance
             page.save()
-
             # Now that the page is saved, display the category instead.
             return category(req, category_name_url)
         else:
@@ -518,7 +523,6 @@ def search(req):
             result_list = run_query(query)
             
     context_dict = {'cat_list': cat_list, 'result_list': result_list}
-
     return render_to_response('rango/search.html', context_dict, context)
 
 def track_url(req):
@@ -582,7 +586,6 @@ def suggest_category(req):
         starts_with = req.GET['suggestion']
 
     cat_list = get_cat_list(8, starts_with)
-
     return render_to_response('rango/category_list.html', {'cat_list': cat_list}, context)
 
 @login_required
