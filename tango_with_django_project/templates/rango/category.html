@@ -8,30 +8,15 @@
          <p>
 	   <b id="like_count">{{ category.likes }}</b> people like this category
 	   {% if user.is_authenticated %}
-	     <button id="likes" data-catid="{{category.id}}" class="btn btn-mini btn-primary"
+	     <button id="likes" data-catid="{{ category.id }}" class="btn btn-mini btn-primary"
 		     data-toggle="button" type="button">Like</button>
 	   {% endif %}
 	 </p>
-	 <div id="page">
-          {% if pages %}
-             <ul>
-	        {% for page in pages %}
-	          <li>
-		    <a href="/rango/goto/?page_id={{page.id}}">{{ page.title }}</a>
-		    {% if page.views > 1 %}
-		      - ({{ page.views }} views)
-		    {% elif page.views == 1 %}
-		      - ({{ page.views }} views)
-		    {% elif page.views <= 0 %}
-		      - ({{ page.views }} views)
-		    {% endif %}
-	        {% endfor %}
-	     </ul>
-	  </div>
-          {% else %}
-	     <strong>No pages currently in category.</strong>
-	  {% endif %}
+	 <!-- This is where we include page_list.html -->	
+	 {% include 'rango/page_list.html' %}	 
+	 {% if user.is_authenticated %}
 	  <a href="/rango/category/{{ category_name_url }}/add_page/">Add page here</a>
+	  {% endif %}
        {% else %}
           The specified category {{ category_name }} does not exist!
        {% endif %}
@@ -51,6 +36,8 @@
 	<ol>
 	  {% for result in result_list %}
 	  <li>
+	    <button data-catid="{{ category.id }}" data-title="{{ result.title }}" data-url="{{ result.link }}" 
+		    class="rango-add btn btn-mini btn-info" type="button">Add</button>
 	    <strong><a href="{{ result.link }}">{{ result.title }}</a></strong>
 	    <p>{{ result.summary }}</p>
 	  </li>

@@ -10,13 +10,13 @@ $(document).ready(function(){
 		    });
 	    });
 	$('.rango-add').click(function(){
-		var catid, title, url
-		catid = $(this).attr("data-catid");
-		title = $(this).attr("data-title");
-		url = $(this).attr("data-url");
-	        $(this).addClass("disabled");
-	        $.get('/rango/auto_add_page/', { category_id: catid, title: title, url: url}, function(data){
+		var catid = $(this).attr("data-catid");
+		var title = $(this).attr("data-title");
+		var url = $(this).attr("data-url");
+	        var me = $(this)
+	        $.get('/rango/auto_add_page/', { category_id: catid, title: title, url: url }, function(data){
 			$('#page').html(data);
+			me.hide();
 		    });
 	    });
  

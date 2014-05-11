@@ -274,12 +274,13 @@ def category(req, category_name_url):
 
     # Create a context dictionary which we can pass to the template rendering engine
     # We start by containing the name of the category passed by the user
-
+    """
     context_dict = {'cat_list': cat_list,
                     'category_name': category_name,
                     'category_name_url': category_name_url,
                     'pages': pages,
                     'category': category}
+    """
 
     if req.method == 'POST':
         query = req.POST['query'].strip()
@@ -593,8 +594,8 @@ def auto_add_page(req):
     context = RequestContext(req)
     # Set cat_id, url, and title of the page to None
     cat_id = None
-    p_url = None
-    p_title = None
+    url = None
+    title = None
     context_dict = {}
 
     # If the client is trying to GET
@@ -602,21 +603,22 @@ def auto_add_page(req):
         # Get cat_id from the 'category_id' of the request
         # which is category_id in rango-ajax.js
         cat_id = req.GET['category_id']
-        p_url = req.GET['url']
-        p_title = req.GET['title']
+        url = req.GET['url']
+        title = req.GET['title']
         
         # if cat_id exists
         if cat_id:
             # Get the category with the id = cat_id
             category = Category.objects.get(id=int(cat_id))
-            
-            pages = Page.objects.get_or_create(category=category, title=p_title, url=p_url)
+           
+            # Either get if the page exist, or create one if it does not.
+            p = Page.objects.get_or_create(category=category, title=title, url=url)
             pages = Page.objects.filter(category=category).order_by('-views')
 
             # Adds our results list  to the template context under name pages
             context_dict['pages'] = pages
 
-    return render_to_response('rango/category.html', context_dict, context)
+    return render_to_response('rango/page_list.html', context_dict, context)
 
 
     
